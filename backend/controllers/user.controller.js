@@ -1,5 +1,6 @@
 import asyncHandler from "express-async-handler";
 import User from "../models/user.model.js";
+import generateToken from "../utils/generateToken.js";
 
 //Description: Authenticate User/set token
 //route POST /api/users/auth
@@ -16,7 +17,17 @@ const getUsers = asyncHandler(async (req, res) => {
 //Access: Public
 
 const authUser = asyncHandler(async (req, res) => {
-  res.status(200).json({ message: "Authenticate User route" });
+  const { email, password } = req.body;
+
+  const user = await User.findOne({ email });
+
+  if (user && (await user.comparePasswords(password))) {
+    generateToken(res, user.id);
+    res.status(201).json({ success: true, data: user });
+  } else {
+    res.status(401);
+    throw new Error("Invalid Email or Password");
+  }
 });
 
 //Description: Register a new user
@@ -34,7 +45,13 @@ const registerUser = asyncHandler(async (req, res, next) => {
 
   try {
     await newUser.save();
-    res.status(201).json({ success: true, data: newUser });
+    if (newUser) {
+      generateToken(res, newUser.id);
+      res.status(201).json({ success: true, data: newUser });
+    } else {
+      res.status(400);
+      throw new Error("Invalid User Data");
+    }
   } catch (error) {
     console.error("An error occurred while creating a new user", error.message);
     next(error);

@@ -36,6 +36,10 @@ userSchema.pre("save", async function (next) {
   }
 });
 
+userSchema.methods.comparePasswords = async function (enteredPassword) {
+  return await bcrypt.compare(enteredPassword, this.password);
+};
+
 // Transform the document when converting to JSON
 userSchema.set("toJSON", {
   transform: function (doc, ret) {
