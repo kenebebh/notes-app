@@ -5,7 +5,10 @@
   "type": "module",
   "scripts": {
     "start": "node backend/server.js",
-    "server": "nodemon backend/server.js"
+    "server": "nodemon backend/server.js",
+    "client": "cd frontend && npm start",
+    "dev": "concurrently \"npm run server\" \"npm run client\"",
+    "build": "cd frontend && npm run build"
   },
   "keywords": [],
   "author": "",
